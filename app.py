@@ -65,10 +65,10 @@ st.markdown("""
 with st.sidebar:
     st.header("⚙️ Kontrol Paneli")
     
-    # --- YENİ KISIM: OTOMATİK ŞİFRE KONTROLÜ ---
+    # --- GÜNCELLENEN KISIM: SESSİZ GİRİŞ ---
+    # Artık ekrana yazı yazmıyor, sadece şifreyi alıyor.
     if "GOOGLE_API_KEY" in st.secrets:
         api_key = st.secrets["GOOGLE_API_KEY"]
-        st.success("✅ Otomatik Giriş Yapıldı")
     else:
         api_key = st.text_input("🔑 API Anahtarı", type="password")
         
