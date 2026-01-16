@@ -5,7 +5,7 @@ from docx import Document
 
 # --- Sayfa Ayarları ---
 st.set_page_config(
-    page_title="Türkçe Akıllı Asistan", 
+    page_title="FixText AI", 
     page_icon="🤖", 
     layout="wide",
     initial_sidebar_state="expanded"
@@ -61,10 +61,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Sidebar ---
+# --- Sidebar ve API Key Yönetimi ---
 with st.sidebar:
     st.header("⚙️ Kontrol Paneli")
-    api_key = st.text_input("🔑 API Anahtarı", type="password")
+    
+    # --- YENİ KISIM: OTOMATİK ŞİFRE KONTROLÜ ---
+    if "GOOGLE_API_KEY" in st.secrets:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+        st.success("✅ Otomatik Giriş Yapıldı")
+    else:
+        api_key = st.text_input("🔑 API Anahtarı", type="password")
+        
     if api_key: genai.configure(api_key=api_key)
     st.markdown("---")
     
@@ -94,7 +101,7 @@ with st.sidebar:
 # --- ANA EKRAN ---
 st.markdown("""
 <div class="main-header">
-    <h1 style='color: white;'>🤖 Türkçe AI Asistan</h1>
+    <h1 style='color: white;'>🤖 FixText AI Asistan</h1>
     <p style='color: #eee;'>Dosya Oku • Yazışmaları Yönet • Profesyonel Ol</p>
 </div>
 """, unsafe_allow_html=True)
@@ -104,19 +111,17 @@ default_text = st.session_state.get('file_content', "")
 user_input = st.text_area("İşlenecek metni buraya yazın veya dosya yükleyin:", value=default_text, height=250)
 
 if st.button("✨ SİHİRLİ DÖNÜŞÜMÜ BAŞLAT ✨"):
-    if not api_key: st.error("⚠️ Lütfen API Anahtarını girin.")
+    if not api_key: st.error("⚠️ API Anahtarı bulunamadı. Lütfen ayarlardan ekleyin veya soldan girin.")
     elif not user_input: st.warning("⚠️ Metin girilmedi.")
     else:
         with st.spinner("Yapay zeka çalışıyor..."):
             try:
                 model = genai.GenerativeModel('gemini-2.5-flash')
                 
-                # --- BURASI DEĞİŞTİ: GEVEZELİK YASAKLANDI ---
                 tone_desc = f"Ton: %{tone_value} resmiyet."
                 if tone_value > 80: tone_desc += " (Bürokratik, 'siz' dili)."
                 elif tone_value < 30: tone_desc += " (Samimi)."
                 
-                # Sert talimatlar ekledik: "Sadece sonucu ver"
                 strict_instruction = "SADECE dönüştürülmüş metni ver. Başka hiçbir açıklama, giriş cümlesi veya not yazma."
                 
                 prompts = {
